@@ -15,25 +15,34 @@ public class Program {
         PreparedStatement st = null;
         try{
             conn = DB.getConnection();
-
+/*
             st = conn.prepareStatement(
                     "INSERT INTO seller "
                     + "(Name,Email,BirthDate,BaseSalary,DepartmentId)"
                     + "VALUES "
-                    +"(?,?,?,?,?)");
-            st.setString(1,"Pedro Yellow");
-            st.setString(2,"pedroyeallow@gmail.com");
+                    +"(?,?,?,?,?)",
+                    Statement.RETURN_GENERATED_KEYS);
+            st.setString(1,"Vitoria Orange");
+            st.setString(2,"vitoriaorange@gmail.com");
             st.setDate(3, new java.sql.Date(sdf.parse("16/04/2003").getTime()));
             st.setDouble(4,4000.0);
             st.setInt(5,4);
-
+*/
+            st = conn.prepareStatement("insert into department (Name) values ('D1'), ('D2')",
+                    Statement.RETURN_GENERATED_KEYS);
            int rowsAffected =  st.executeUpdate();
-            System.out.println("DOne! Rows Updated: " + rowsAffected);
+            if(rowsAffected > 0){
+                ResultSet rs = st.getGeneratedKeys();
+                while (rs.next()){
+                    int id = rs.getInt(1);
+                    System.out.println("Done! Id = " + id);
+                }
+            }else {
+                System.out.println("No rows affected");
+            }
         }catch (SQLException e) {
             e.printStackTrace();
-        } catch (ParseException e){
-            e.printStackTrace();
-        }finally {
+        } finally {
             DB.closeStatement(st);
             DB.closeConnection();
         }
