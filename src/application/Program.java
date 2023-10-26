@@ -5,31 +5,37 @@ import db.DbException;
 import db.DbIntegrityException;
 
 import java.sql.*;
-import java.text.ParseException;
-import java.text.SimpleDateFormat;
 
 public class Program {
     public static void main(String[] args) {
         Connection conn = null;
-        PreparedStatement st = null;
+        Statement st = null;
         try {
             conn = DB.getConnection();
 
-            st = conn.prepareStatement(
-                    "DELETE FROM department "
-                            + "WHERE "
-                            + "Id = ?");
+            conn.setAutoCommit(false);
 
-            st.setInt(1, 6);
+            st = conn.createStatement();
 
-            int rowsAffected = st.executeUpdate();
+            int rows1 = st.executeUpdate("UPDATE seller Set BaseSalary = 2090 WHERE DepartmentId = 1");
+            int x = 1;
+            /*if (x < 2) {
+            	throw new SQLException("Fake error");
+            }*/
+            int rows2 = st.executeUpdate("UPDATE seller Set BaseSalary = 8090 WHERE DepartmentId = 2");
 
-            System.out.println("Done! Rows affected: " + rowsAffected);
-        }
-        catch (SQLException e) {
-            throw new DbIntegrityException(e.getMessage());
-        }
-        finally {
+            conn.commit();
+
+            System.out.println("rows1 = " + rows1);
+            System.out.println("rows2 = " + rows2);
+        } catch (SQLException e) {
+            try {
+                conn.rollback();
+                throw new DbException("Transaction rolled back");
+            } catch (SQLException ex) {
+                throw new DbException("Error trying to rollback. Caused by " + ex.getMessage());
+            }
+        } finally {
             DB.closeStatement(st);
             DB.closeConnection();
         }
